@@ -144,7 +144,11 @@ const setupBabelJest = (options: InitialOptions) => {
       if (customJSTransformer === 'babel-jest') {
         babelJest = require.resolve('babel-jest');
         transform[customJSPattern] = babelJest;
-      } else if (customJSTransformer.includes('babel-jest')) {
+      } else if (
+        customJSTransformer &&
+        customJSTransformer.includes &&
+        customJSTransformer.includes('babel-jest')
+      ) {
         babelJest = customJSTransformer;
       }
     }
@@ -535,11 +539,13 @@ export default function normalize(options: InitialOptions, argv: Argv) {
           transform &&
           Object.keys(transform).map(regex => [
             regex,
-            resolve(newOptions.resolver, {
-              filePath: transform[regex],
-              key,
-              rootDir: options.rootDir,
-            }),
+            typeof transform[regex] === 'string'
+              ? resolve(newOptions.resolver, {
+                  filePath: transform[regex],
+                  key,
+                  rootDir: options.rootDir,
+                })
+              : transform[regex],
           ]);
         break;
       case 'coveragePathIgnorePatterns':
